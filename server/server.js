@@ -1,28 +1,24 @@
 require("dotenv").config({ path: "./server/config/.env" });
 const express = require("express");
 const app = express();
-const http = require("http");
-const server = http.createServer(app);
-
-const { Server } = require("socket.io");
-const io = new Server(server);
 
 require("./startup/logging");
 require("./startup/routes")(app);
 require("./startup/database")();
 require("./startup/validation")();
 
+const Department = require("./models/Department");
+
 app.get("/", (req, res) => {
   res.json({ msg: "Hello world 😃" });
 });
 
-let status = {
-  L1: false,
-  L2: true,
-  L3: false,
-  motionCounter: 0,
-};
+let status = [];
+Department.find().then((data) => {
+  status;
+});
 let connections = [];
+
 app.post("/service", async (req, res) => {
   const { name } = req.body;
   const dep = new Department({
@@ -31,6 +27,7 @@ app.post("/service", async (req, res) => {
   const newDep = await dep.save();
   res.json(newDep);
 });
+
 app.get("/status", (req, res) => {
   const { _id } = req.query;
   if (!_id) return res.status(400).json({ message: "unvalid user _id" });
@@ -55,6 +52,6 @@ app.post("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`server is running on ${PORT}`);
 });
